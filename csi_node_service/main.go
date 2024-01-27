@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net"
+	"os"
 
 	"github.com/PranoSA/NFS_API_CSI/identity"
 	"github.com/PranoSA/NFS_API_CSI/node"
@@ -22,13 +23,17 @@ func main() {
 
 	s := grpc.NewServer()
 
+	// Get CSI Driver Socket From Env
+	sock := os.Getenv("CSI_ENDPOINT")
+
 	//proto.RegisterControllerServer(s, &controllerServer)
 	proto.RegisterIdentityServer(s, &identityService)
 	proto.RegisterNodeServer(s, &nodeService)
 
 	// Listen on a TCP port
 	// Listen on a Unix domain socket
-	lis, err := net.Listen("unix", "/var/lib/kubelet/plugins/my-driver/csi.sock")
+	//"/var/lib/kubelet/plugins/my-driver/csi.sock"
+	lis, err := net.Listen("unix", sock)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
