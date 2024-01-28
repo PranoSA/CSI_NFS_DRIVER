@@ -12,6 +12,8 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -84,7 +86,6 @@ func CreateVolume(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
 
 }
 
@@ -123,15 +124,21 @@ func GetVolume(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	return
 }
 
+var port int
+
 func main() {
+
+	flag.IntVar(&port, "port", 443, "Port to listen on")
+
+	flag.Parse()
 	router := httprouter.New()
-	router.POST("/create", CreateVolume)
-	router.DELETE("/delete/{shareid}", DeleteVolume)
-	router.PUT("/update/{shareid}", UpdateVolume)
+	router.POST("/volume", CreateVolume)
+	router.DELETE("/volume/{shareid}", DeleteVolume)
+	router.PUT("/volume/{shareid}", UpdateVolume)
 	router.GET("/volume/{shareid}", GetVolume)
 
 	server := &http.Server{
-		Addr:     ":443",
+		Addr:     fmt.Sprintf(":%d", port),
 		Handler:  router,
 		ErrorLog: log.New(os.Stderr, "log: ", log.Lshortfile),
 	}
